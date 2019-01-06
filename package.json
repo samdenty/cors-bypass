@@ -1,5 +1,5 @@
 {
-  "name": "bypass-cors",
+  "name": "cors-bypass",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
@@ -9,7 +9,7 @@
     "watch": "yarn tsc -w",
     "start": "parcel serve demo/**/*.html",
     "demo": "parcel build demo/**/*.html",
-    "build": "yarn tsc; yarn webpack"
+    "build": "yarn tsc"
   },
   "keywords": [],
   "author": "",

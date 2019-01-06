@@ -19,5 +19,6 @@
 
     "rootDir": "src",
     "outDir": "lib"
-  }
+  },
+  "exclude": ["./demo/**/*.ts"]
 }
