@@ -1,5 +1,7 @@
 import { Client, WebSocket } from '../src'
 
+const client = new Client()
+
 const launchServer = document.createElement('button')
 const testSocket = document.createElement('button')
 launchServer.innerText = 'Launch server'
@@ -15,25 +17,23 @@ launchServer.onclick = () => {
 }
 testSocket.onclick = () => test()
 
-const client = new Client()
+// function testMqtt() {
+//   const mqtt = require('mqtt')
 
-function testMqtt() {
-  const mqtt = require('mqtt')
+//   var client = mqtt.connect('ws://test.mosquitto.org:8080')
+//   client.on('connect', function() {
+//     client.subscribe('presence', function(err) {
+//       if (!err) {
+//         client.publish('presence', 'Hello mqtt')
+//       }
+//     })
+//   })
 
-  var client = mqtt.connect('ws://test.mosquitto.org:8080')
-  client.on('connect', function() {
-    client.subscribe('presence', function(err) {
-      if (!err) {
-        client.publish('presence', 'Hello mqtt')
-      }
-    })
-  })
-
-  client.on('message', function(topic, message) {
-    // message is Buffer
-    console.log({ topic, message: message.toString() })
-  })
-}
+//   client.on('message', function(topic, message) {
+//     // message is Buffer
+//     console.log({ topic, message: message.toString() })
+//   })
+// }
 
 function test() {
   var wsUri = 'wss://echo.websocket.org/'

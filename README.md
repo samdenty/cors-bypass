@@ -1,13 +1,13 @@
 # cors-bypass
 
-Bypass the browsers CORS restrictions, **without needing to setup a server-side proxy**. [Initial idea](https://stackoverflow.com/a/44943661/5269570)
+Bypass the browsers CORS restrictions, **without needing to setup a server-side proxy**. [Demo](https://cors-bypass.netlify.com/)
 
 - Allows you to make HTTP requests from a HTTPS page
 - 100% coverage for the [`WebSocket` API](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API) spec
 
 ## How does this module work?
 
-It uses [`postMessage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) to send cross-domain events, which is used to provide mock HTTP APIs (`fetch`, `WebSocket`, `XMLHTTPRequest` etc.)
+It uses [`postMessage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage) to send cross-domain events, which is used to provide mock HTTP APIs (`fetch`, `WebSocket`, `XMLHTTPRequest` etc.). [Simplified version](https://stackoverflow.com/a/44943661/5269570)
 
 ## How do I use it
 
