@@ -70,7 +70,10 @@ export class WebSocket extends EventTarget {
       this.server.on('websocketEvent', this.handleWebsocketEvent)
       this.server.on('websocketInfo', this.handleWebsocketInfo)
     } else {
-      this.handleWebsocketEvent({ id: this.id, type: 'error' })
+      // run async
+      setTimeout(() =>
+        this.handleWebsocketEvent({ id: this.id, type: 'error' })
+      )
     }
   }
 
