@@ -8,6 +8,8 @@ const createId = () => ++lastId
 
 export class WebSocket extends EventTarget {
   private client = getClient()
+  private server = this.client.server
+
   private id = createId()
   private _binaryType: BinaryType = 'blob'
 
@@ -46,33 +48,38 @@ export class WebSocket extends EventTarget {
 
   constructor(public url: string, protocols?: string | string[]) {
     super()
-    this.client.server.emit('newWebsocket', { id: this.id, url, protocols })
 
-    this.client.server.on('disconnect', () =>
-      this.handleWebsocketEvent({ id: this.id, type: 'close' })
-    )
-    this.client.server.on('websocketEvent', this.handleWebsocketEvent)
-    this.client.server.on('websocketInfo', this.handleWebsocketInfo)
+    if (this.server) {
+      this.server.emit('newWebsocket', { id: this.id, url, protocols })
 
-    this.addEventListener('close', () => {
-      this.readyState = WebSocket.CLOSED
-      this.client.server.off('websocketEvent', this.handleWebsocketEvent)
-      this.client.server.off('websocketInfo', this.handleWebsocketInfo)
-    })
-    this.addEventListener('open', () => {
-      this.readyState = WebSocket.OPEN
-    })
+      this.server.on('disconnect', () =>
+        this.handleWebsocketEvent({ id: this.id, type: 'close' })
+      )
+      this.server.on('websocketEvent', this.handleWebsocketEvent)
+      this.server.on('websocketInfo', this.handleWebsocketInfo)
+
+      this.addEventListener('close', () => {
+        this.readyState = WebSocket.CLOSED
+        this.server.off('websocketEvent', this.handleWebsocketEvent)
+        this.server.off('websocketInfo', this.handleWebsocketInfo)
+      })
+      this.addEventListener('open', () => {
+        this.readyState = WebSocket.OPEN
+      })
+    } else {
+      this.handleWebsocketEvent({ id: this.id, type: 'error' })
+    }
   }
 
   public send(data: WebSocketData) {
     if (this.readyState !== WebSocket.OPEN) throw new Error()
 
-    this.client.server.emit('websocketSend', { id: this.id, data })
+    this.server.emit('websocketSend', { id: this.id, data })
   }
 
   public close(code?: number, reason?: string) {
     this.readyState = WebSocket.CLOSING
-    this.client.server.emit('websocketClose', { id: this.id, code, reason })
+    this.server.emit('websocketClose', { id: this.id, code, reason })
   }
 
   private handleWebsocketEvent = ({

@@ -63,7 +63,7 @@ export class Client {
     )
 
     const bestServer = servers[0]
-    if (!bestServer) throw new Error(`Couldn't find a server!`)
+    if (!bestServer) return null
 
     return bestServer
   }
