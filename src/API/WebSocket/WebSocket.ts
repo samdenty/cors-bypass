@@ -40,10 +40,11 @@ export class WebSocket extends EventTarget {
   public set binaryType(binaryType: BinaryType) {
     this._binaryType = binaryType
 
-    this.client.server.emit('websocketInfo', {
-      id: this.id,
-      info: { binaryType }
-    })
+    this.server &&
+      this.server.emit('websocketInfo', {
+        id: this.id,
+        info: { binaryType }
+      })
   }
 
   constructor(public url: string, protocols?: string | string[]) {
@@ -72,14 +73,16 @@ export class WebSocket extends EventTarget {
   }
 
   public send(data: WebSocketData) {
-    if (this.readyState !== WebSocket.OPEN) throw new Error()
+    if (!this.server || this.readyState !== WebSocket.OPEN) throw new Error()
 
     this.server.emit('websocketSend', { id: this.id, data })
   }
 
   public close(code?: number, reason?: string) {
     this.readyState = WebSocket.CLOSING
-    this.server.emit('websocketClose', { id: this.id, code, reason })
+
+    this.server &&
+      this.server.emit('websocketClose', { id: this.id, code, reason })
   }
 
   private handleWebsocketEvent = ({
