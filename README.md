@@ -23,6 +23,18 @@ import { Server } from 'cors-bypass'
 const server = new Server()
 ```
 
+<details><summary>Without a bundler</summary>
+<p>
+
+```html
+<body>
+  <script src="./node_modules/cors-bypass/lib/server.bundle.js"></script>
+</body>
+```
+
+</p>
+</details>
+
 ### Adapter
 
 Next you need a HTML file from the domain that **will make requests** (your web app's domain). The adapter is in control of forwarding requests from a client located on _any page of your site_, to the server (using a [`BroadcastChannel`](https://developer.mozilla.org/en-US/docs/Web/API/BroadcastChannel)).
@@ -31,6 +43,18 @@ Next you need a HTML file from the domain that **will make requests** (your web 
 import { Adapter } from 'cors-bypass'
 const adapter = new Adapter()
 ```
+
+<details><summary>Without a bundler</summary>
+<p>
+
+```html
+<body>
+  <script src="./node_modules/cors-bypass/lib/adapter.bundle.js"></script>
+</body>
+```
+
+</p>
+</details>
 
 ### Client
 

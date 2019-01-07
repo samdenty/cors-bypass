@@ -1,6 +1,6 @@
 {
   "name": "cors-bypass",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "homepage": "https://github.com/samdenty/cors-bypass",
   "description": "Bypass the browsers CORS restrictions, without needing to setup a server-side proxy. ",
   "main": "lib/index.js",
@@ -8,10 +8,12 @@
   "scripts": {
     "tsc": "rm -rf lib; tsc",
     "watch": "yarn tsc -w",
+    "webpack": "webpack --config webpack.config.js",
     "start": "parcel serve demo/**/*.html",
     "demo": "parcel build demo/**/*.html",
-    "build": "yarn tsc"
+    "build": "yarn tsc; yarn webpack"
   },
+  "sideEffects": false,
   "keywords": [],
   "author": "",
   "license": "MIT",
@@ -23,6 +25,9 @@
   "devDependencies": {
     "mqtt": "^2.18.8",
     "parcel-bundler": "^1.11.0",
-    "typescript": "^3.2.2"
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.3",
+    "webpack-cli": "^3.2.1"
   }
 }

@@ -1,6 +1,4 @@
-import { Server } from '../src'
+import { Server } from '../src/Server'
 
-const server = new Server({
-  adapterUrl: './adapter.html',
-})
+const server = new Server({})
 ;(window as any).server = server

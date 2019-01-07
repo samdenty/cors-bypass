@@ -1,4 +1,4 @@
-import { Client, WebSocket } from '../src'
+import { Client, WebSocket } from '../src/index'
 
 const client = new Client()
 
