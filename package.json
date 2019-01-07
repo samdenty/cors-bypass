@@ -1,6 +1,6 @@
 {
   "name": "cors-bypass",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "homepage": "https://github.com/samdenty/cors-bypass",
   "description": "Bypass the browsers CORS restrictions, without needing to setup a server-side proxy. ",
   "main": "lib/index.js",
