@@ -67,7 +67,7 @@ function test() {
     writeToScreen(
       '<span style="color: blue;">RESPONSE: ' + evt.data + '</span>'
     )
-    websocket.close()
+    // websocket.close()
   }
 
   function onError(evt) {

@@ -48,39 +48,16 @@ export class WebSocket extends EventTarget {
     super()
     this.client.server.emit('newWebsocket', { id: this.id, url, protocols })
 
-    const handleWebsocketEvent = ({
-      id,
-      type,
-      rest
-    }: IClientTopics['websocketEvent']) => {
-      if (id !== this.id) return
-
-      const event =
-        type === 'close'
-          ? new CloseEvent('close', rest)
-          : type === 'message'
-          ? new MessageEvent('message', rest)
-          : new Event(type, rest)
-
-      this.dispatchEvent(event)
-    }
-
-    const handleWebsocketInfo = ({
-      id,
-      info
-    }: IClientTopics['websocketInfo']) => {
-      if (id !== this.id) return
-
-      Object.keys(info).forEach(key => (this[key] = info[key]))
-    }
-
-    this.client.server.on('websocketEvent', handleWebsocketEvent)
-    this.client.server.on('websocketInfo', handleWebsocketInfo)
+    this.client.server.on('disconnect', () =>
+      this.handleWebsocketEvent({ id: this.id, type: 'close' })
+    )
+    this.client.server.on('websocketEvent', this.handleWebsocketEvent)
+    this.client.server.on('websocketInfo', this.handleWebsocketInfo)
 
     this.addEventListener('close', () => {
       this.readyState = WebSocket.CLOSED
-      this.client.server.off('websocketEvent', handleWebsocketEvent)
-      this.client.server.off('websocketInfo', handleWebsocketInfo)
+      this.client.server.off('websocketEvent', this.handleWebsocketEvent)
+      this.client.server.off('websocketInfo', this.handleWebsocketInfo)
     })
     this.addEventListener('open', () => {
       this.readyState = WebSocket.OPEN
@@ -96,6 +73,32 @@ export class WebSocket extends EventTarget {
   public close(code?: number, reason?: string) {
     this.readyState = WebSocket.CLOSING
     this.client.server.emit('websocketClose', { id: this.id, code, reason })
+  }
+
+  private handleWebsocketEvent = ({
+    id,
+    type,
+    rest
+  }: IClientTopics['websocketEvent']) => {
+    if (id !== this.id) return
+
+    const event =
+      type === 'close'
+        ? new CloseEvent('close', rest)
+        : type === 'message'
+        ? new MessageEvent('message', rest)
+        : new Event(type, rest)
+
+    this.dispatchEvent(event)
+  }
+
+  private handleWebsocketInfo = ({
+    id,
+    info
+  }: IClientTopics['websocketInfo']) => {
+    if (id !== this.id) return
+
+    Object.keys(info).forEach(key => (this[key] = info[key]))
   }
 }
 

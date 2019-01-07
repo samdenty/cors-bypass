@@ -1,10 +1,30 @@
-import { ServerID, IServerTopics } from '../../types'
-import { Client, IClientEventHandler, IClientHandlerCallback } from '../Client'
+import EventEmitter from 'event-emitter'
+import {
+  ServerID,
+  IServerTopics,
+  IClientTopics,
+  IClientEvent
+} from '../../types'
+import { Client } from '../Client'
 import { PONG_INTERVAL } from '../../Server'
 
+export type IConnectedServerTopics = IClientTopics & { disconnect: null }
+
+export type IConnectedServerEventHandler = <
+  Topic extends keyof IConnectedServerTopics
+>(
+  topic: Topic,
+  callback: (
+    data: IConnectedServerTopics[Topic],
+    event?: Topic extends keyof IClientTopics ? IClientEvent<Topic> : undefined
+  ) => void
+) => void
+
 export class ConnectedServer {
-  private listeners = new Map<Function, { topic: string; callback: Function }>()
+  private events = EventEmitter()
+
   private disposeTimer: any
+  private listeners = new Map<string, Function>()
 
   public lastPing: number
 
@@ -21,21 +41,25 @@ export class ConnectedServer {
     this.client.emit(topic, data, this.id)
   }
 
-  public on: IClientEventHandler = (topic, callback) => {
-    const clientCallback = this.client.on(topic, (data, event) => {
-      if (event.from === this.id) callback(data, event)
-    })
+  public on: IConnectedServerEventHandler = (topic, callback) => {
+    this.events.on(topic, callback)
 
-    this.listeners.set(callback, { topic, callback: clientCallback as any })
+    if (!this.listeners.has(topic)) {
+      const clientCallback = this.client.on(
+        topic as keyof IClientTopics,
+        (data, event) => {
+          if (event.from === this.id) this.events.emit(topic, data, event)
+        }
+      )
+
+      this.listeners.set(topic, clientCallback as any)
+    }
 
     return callback
   }
 
-  public off: IClientEventHandler = (topic, callback) => {
-    const clientCallback = this.listeners.get(callback)
-    if (!clientCallback) return
-
-    return this.client.off(topic, clientCallback.callback as any)
+  public off: IConnectedServerEventHandler = (topic, callback) => {
+    return this.events.off(topic, callback)
   }
 
   private handlePing = () => {
@@ -53,10 +77,14 @@ export class ConnectedServer {
   }
 
   public dispose() {
+    this.events.emit('disconnect')
+
     this.clearDisposeTimer()
-    for (const { topic, callback } of Array.from(this.listeners.values())) {
+
+    for (const [topic, callback] of Array.from(this.listeners.entries())) {
       this.client.off(topic as any, callback as any)
     }
+
     this.client.servers.delete(this.id)
   }
 }

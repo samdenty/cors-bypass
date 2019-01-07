@@ -11,12 +11,8 @@ import EventEmitter from 'event-emitter'
 
 export type IClientEventHandler = <Topic extends keyof IClientTopics>(
   topic: Topic,
-  callback: IClientHandlerCallback<Topic>
+  callback: (data: IClientTopics[Topic], event: IClientEvent<Topic>) => void
 ) => void
-
-export type IClientHandlerCallback<
-  Topic extends keyof IClientTopics = keyof IClientTopics
-> = (data: IClientTopics[Topic], event: IClientEvent<Topic>) => void
 
 let client: Client
 
