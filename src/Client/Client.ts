@@ -54,6 +54,9 @@ export class Client {
         this.servers.set(serverId, server)
       }
     })
+
+    // Ping all servers for faster resolution
+    this.emit('pingAllServers')
   }
 
   public get server() {
