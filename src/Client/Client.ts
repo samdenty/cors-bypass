@@ -6,83 +6,89 @@ import {
   IServerEvent,
   IClientEvent
 } from '../types'
+import { ConnectedServer } from './ConnectedServer'
 import EventEmitter from 'event-emitter'
 
 export type IClientEventHandler = <Topic extends keyof IClientTopics>(
   topic: Topic,
-  callback: (data: IClientTopics[Topic], clientId: ServerID) => void
+  callback: IClientHandlerCallback<Topic>
 ) => void
 
+export type IClientHandlerCallback<
+  Topic extends keyof IClientTopics = keyof IClientTopics
+> = (data: IClientTopics[Topic], event: IClientEvent<Topic>) => void
+
 let client: Client
+
+export const PING_INTERVAL = 1000
 
 export class Client {
   private id = `${location.href}${Math.random()
     .toString(16)
     .substr(2, 8)}`
+  private pingTimer = setInterval(() => this.emit('ping'), PING_INTERVAL)
 
   private rxEvents = EventEmitter()
 
   private rx = new BroadcastChannel(CHANNEL_RX)
   private tx = new BroadcastChannel(CHANNEL_TX)
 
+  public servers = new Map<ServerID, ConnectedServer>()
+
   public once: IClientEventHandler = (...args) => this.rxEvents.once(...args)
   public off: IClientEventHandler = (...args) => this.rxEvents.off(...args)
-  public on: IClientEventHandler = (...args) => this.rxEvents.on(...args)
+  public on: IClientEventHandler = (...args) => {
+    this.rxEvents.on(...args)
+    return args[1]
+  }
 
   constructor() {
     setClient(this)
 
-    this.rx.addEventListener('message', (event: MessageEvent) => {
-      const { topic, data }: IServerEvent = event.data
+    this.rx.addEventListener('message', ({ data }: MessageEvent) => {
+      const event: IServerEvent = data
+      if (event.to && event.to !== this.id) return
 
-      this.rxEvents.emit(topic, data)
+      this.rxEvents.emit(event.topic, event.data, event)
+    })
+
+    this.on('pong', (_, { from: serverId, data: { url } }) => {
+      if (!this.servers.has(serverId)) {
+        const server = new ConnectedServer(this, serverId, url)
+        this.servers.set(serverId, server)
+      }
     })
   }
 
-  private pingTimer = setInterval(() => this.emit('ping'), 1000)
+  public get server() {
+    // @TODO: Get the correct server
+    const servers = Array.from(this.servers.values()).sort((a, b) =>
+      a.lastPing === b.lastPing ? 0 : a.lastPing > b.lastPing ? -1 : 1
+    )
+
+    const bestServer = servers[0]
+    if (!bestServer) throw new Error(`Couldn't find a server!`)
+
+    return bestServer
+  }
 
   public dispose() {
     clearInterval(this.pingTimer)
 
-    this.emit('disposeClient', null, true)
+    this.emit('disposeClient')
 
     this.rx.close()
     this.tx.close()
   }
 
-  public getServer() {
-    return new Promise<IClientTopics['serverPing']>((resolve, reject) => {
-      const dispose = () => this.off('serverPing', handler)
-
-      const timer = setTimeout(() => {
-        dispose()
-        reject(new Error('Failed to find a server!'))
-      }, 300)
-
-      const handler = (server: IClientTopics['serverPing']) => {
-        // if (url = this.proxyurl)
-        {
-          clearTimeout(timer)
-          resolve(server)
-          dispose()
-        }
-      }
-
-      this.on('serverPing', handler)
-      this.emit('pingServers', null, true)
-    })
-  }
-
   public emit<Topic extends keyof IServerTopics>(
     topic: Topic,
-    data?: IServerTopics[Topic],
-    everyone = false
+    data: IServerTopics[Topic] = null,
+    serverId?: ServerID
   ) {
-    const server = !everyone && null /*(await this.getServer())*/
-
     const event: IServerEvent<Topic> = {
       topic,
-      to: server ? server.id : undefined,
+      to: serverId,
       from: this.id,
       data
     }

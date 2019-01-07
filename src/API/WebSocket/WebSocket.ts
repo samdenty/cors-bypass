@@ -37,12 +37,16 @@ export class WebSocket extends EventTarget {
 
   public set binaryType(binaryType: BinaryType) {
     this._binaryType = binaryType
-    this.client.emit('websocketInfo', { id: this.id, info: { binaryType } })
+
+    this.client.server.emit('websocketInfo', {
+      id: this.id,
+      info: { binaryType }
+    })
   }
 
   constructor(public url: string, protocols?: string | string[]) {
     super()
-    this.client.emit('newWebsocket', { id: this.id, url, protocols })
+    this.client.server.emit('newWebsocket', { id: this.id, url, protocols })
 
     const handleWebsocketEvent = ({
       id,
@@ -70,13 +74,13 @@ export class WebSocket extends EventTarget {
       Object.keys(info).forEach(key => (this[key] = info[key]))
     }
 
-    this.client.on('websocketEvent', handleWebsocketEvent)
-    this.client.on('websocketInfo', handleWebsocketInfo)
+    this.client.server.on('websocketEvent', handleWebsocketEvent)
+    this.client.server.on('websocketInfo', handleWebsocketInfo)
 
     this.addEventListener('close', () => {
       this.readyState = WebSocket.CLOSED
-      this.client.off('websocketEvent', handleWebsocketEvent)
-      this.client.off('websocketInfo', handleWebsocketInfo)
+      this.client.server.off('websocketEvent', handleWebsocketEvent)
+      this.client.server.off('websocketInfo', handleWebsocketInfo)
     })
     this.addEventListener('open', () => {
       this.readyState = WebSocket.OPEN
@@ -86,12 +90,12 @@ export class WebSocket extends EventTarget {
   public send(data: WebSocketData) {
     if (this.readyState !== WebSocket.OPEN) throw new Error()
 
-    this.client.emit('websocketSend', { id: this.id, data })
+    this.client.server.emit('websocketSend', { id: this.id, data })
   }
 
   public close(code?: number, reason?: string) {
     this.readyState = WebSocket.CLOSING
-    this.client.emit('websocketClose', { id: this.id, code, reason })
+    this.client.server.emit('websocketClose', { id: this.id, code, reason })
   }
 }
 

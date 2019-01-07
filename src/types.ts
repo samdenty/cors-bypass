@@ -20,8 +20,7 @@ export interface IClientTopics {
       [key: string]: any
     }
   }
-  serverPing: {
-    id: ServerID
+  pong: {
     url: string
   }
 }
@@ -51,4 +50,5 @@ export interface IClientEvent<
   topic: Topic
   data: IClientTopics[Topic]
   from: ServerID
+  to?: ClientID
 }

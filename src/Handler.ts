@@ -1,7 +1,6 @@
 import { WebSocketHandler } from './API'
 import { ServerHandler } from './Server/Server/ServerHandler'
-import { ConnectedClientHandler } from './Server/ConnectedClient'
-import { IServerTopics } from './types'
+import { ConnectedClientHandler } from './Server/ConnectedClient/ConnectedClientHandler'
 
 type ArgumentTypes<F extends Function> = F extends (...args: infer A) => any
   ? A

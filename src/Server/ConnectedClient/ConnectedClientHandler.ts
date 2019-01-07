@@ -1,6 +1,7 @@
 import { ConnectedClient } from '../ConnectedClient'
 import { Handler } from '../../Handler'
 import { Server } from '../Server'
+import { PING_INTERVAL } from '../../Client'
 
 export class ConnectedClientHandler implements Handler {
   private disposeTimer: any
@@ -11,7 +12,10 @@ export class ConnectedClientHandler implements Handler {
 
   private addDisposeTimer() {
     this.clearDisposeTimer()
-    this.disposeTimer = setTimeout(() => this.client.dispose(), 2500)
+    this.disposeTimer = setTimeout(
+      () => this.client.dispose(),
+      PING_INTERVAL + 1500
+    )
   }
 
   private clearDisposeTimer() {

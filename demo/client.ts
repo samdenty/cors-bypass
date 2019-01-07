@@ -1,6 +1,7 @@
 import { Client, WebSocket } from '../src/index'
 
 const client = new Client()
+;(window as any).client = client
 
 const launchServer = document.createElement('button')
 const testSocket = document.createElement('button')

@@ -41,7 +41,7 @@ export class Server {
 
   private handleEvent = <Topic extends keyof IServerTopics>(
     topic: Topic,
-    payload: IServerTopics[Topic],
+    data: IServerTopics[Topic],
     clientId: ClientID
   ) => {
     if (!this.clients.has(clientId))
@@ -49,20 +49,32 @@ export class Server {
 
     const client = this.clients.get(clientId)
 
-    const handled = client.handleEvent(topic, payload)
+    console.groupCollapsed(`Received %c${topic}`, 'color: red')
+    console.log('data', data)
+    console.log('client', client)
+
+    const handled = client.handleEvent(topic, data)
+    console.log('handled', handled)
+    console.groupEnd()
   }
 
   public emit = <Topic extends keyof IClientTopics>(
     topic: Topic,
-    data: IClientTopics[Topic]
+    data: IClientTopics[Topic],
+    clientId?: ClientID
   ) => {
     const event = makeValidEvent<IClientEvent<Topic>>({
       topic,
+      to: clientId,
       from: this.id,
 
       data
     })
 
+    console.groupCollapsed(`Emitted %c${topic}`, 'color: orange')
+    console.log('data', data)
+
     this.iframe.contentWindow.postMessage(event, '*')
+    console.groupEnd()
   }
 }
