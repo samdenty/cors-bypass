@@ -1,6 +1,7 @@
+import { Handler } from '../../Handler'
 import { EventTarget, defineEventAttribute } from 'event-target-shim'
-import { getClient } from './Client'
-import { WebSocketData, IClientTopics } from '../types'
+import { getClient } from '../../Client'
+import { WebSocketData, IClientTopics } from '../../types'
 
 let lastId = 0
 const createId = () => ++lastId

@@ -16,6 +16,10 @@ export type IClientEventHandler = <Topic extends keyof IClientTopics>(
 let client: Client
 
 export class Client {
+  private id = `${location.href}${Math.random()
+    .toString(16)
+    .substr(2, 8)}`
+
   private rxEvents = EventEmitter()
 
   private rx = new BroadcastChannel(CHANNEL_RX)
@@ -35,7 +39,13 @@ export class Client {
     })
   }
 
+  private pingTimer = setInterval(() => this.emit('ping'), 1000)
+
   public dispose() {
+    clearInterval(this.pingTimer)
+
+    this.emit('disposeClient', null, true)
+
     this.rx.close()
     this.tx.close()
   }
@@ -63,16 +73,17 @@ export class Client {
     })
   }
 
-  public async emit<Topic extends keyof IServerTopics>(
+  public emit<Topic extends keyof IServerTopics>(
     topic: Topic,
     data?: IServerTopics[Topic],
     everyone = false
   ) {
-    const server = !everyone && (await this.getServer())
+    const server = !everyone && null /*(await this.getServer())*/
 
     const event: IServerEvent<Topic> = {
       topic,
       to: server ? server.id : undefined,
+      from: this.id,
       data
     }
 

@@ -1,4 +1,4 @@
-import { WebSocket as ShimmedWebSocket } from '../Client'
+import { WebSocket as ShimmedWebSocket } from '..'
 
 export const overrideNativeWebsocket = (checker?: (wsUrl: URL) => boolean) => {
   const NativeWebSocket = WebSocket

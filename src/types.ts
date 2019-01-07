@@ -1,4 +1,7 @@
-export type ServerID = string | number
+import { handlers, Events } from './Handler'
+
+export type ClientID = string
+export type ServerID = string
 export type WebSocketID = string | number
 
 export type WebSocketData = string | ArrayBufferLike | Blob | ArrayBufferView
@@ -23,39 +26,22 @@ export interface IClientTopics {
   }
 }
 
-export interface IServerTopics {
-  pingServers: null
+type UnionToIntersection<U> = (U extends any
+  ? (k: U) => void
+  : never) extends ((k: infer I) => void)
+  ? I
+  : never
 
-  newWebsocket: {
-    id: WebSocketID
-    url: string
-    protocols?: string | string[]
-  }
-
-  websocketSend: {
-    id: WebSocketID
-    data: WebSocketData
-  }
-
-  websocketClose: {
-    id: WebSocketID
-    code?: number
-    reason?: string
-  }
-
-  websocketInfo: {
-    id: WebSocketID
-    info: {
-      [key: string]: any
-    }
-  }
-}
+export type IServerTopics = Events<
+  UnionToIntersection<(typeof handlers[number])['prototype']>
+>
 
 export interface IServerEvent<
   Topic extends keyof IServerTopics = keyof IServerTopics
 > {
   topic: Topic
   data: IServerTopics[Topic]
+  from: ClientID
   to?: ServerID
 }
 
