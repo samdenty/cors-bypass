@@ -1,6 +1,6 @@
 {
   "name": "cors-bypass",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "homepage": "https://github.com/samdenty/cors-bypass",
   "description": "Bypass the browsers CORS restrictions, without needing to setup a server-side proxy. ",
   "main": "lib/index.js",
@@ -21,8 +21,8 @@
     "event-target-shim": "^4.0.3"
   },
   "devDependencies": {
-    "parcel-bundler": "^1.11.0",
     "mqtt": "^2.18.8",
+    "parcel-bundler": "^1.11.0",
     "typescript": "^3.2.2"
   }
 }
