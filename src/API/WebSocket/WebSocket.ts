@@ -50,6 +50,17 @@ export class WebSocket extends EventTarget {
   constructor(public url: string, protocols?: string | string[]) {
     super()
 
+    this.addEventListener('close', () => {
+      this.readyState = WebSocket.CLOSED
+      if (this.server) {
+        this.server.off('websocketEvent', this.handleWebsocketEvent)
+        this.server.off('websocketInfo', this.handleWebsocketInfo)
+      }
+    })
+    this.addEventListener('open', () => {
+      this.readyState = WebSocket.OPEN
+    })
+
     if (this.server) {
       this.server.emit('newWebsocket', { id: this.id, url, protocols })
 
@@ -58,15 +69,6 @@ export class WebSocket extends EventTarget {
       )
       this.server.on('websocketEvent', this.handleWebsocketEvent)
       this.server.on('websocketInfo', this.handleWebsocketInfo)
-
-      this.addEventListener('close', () => {
-        this.readyState = WebSocket.CLOSED
-        this.server.off('websocketEvent', this.handleWebsocketEvent)
-        this.server.off('websocketInfo', this.handleWebsocketInfo)
-      })
-      this.addEventListener('open', () => {
-        this.readyState = WebSocket.OPEN
-      })
     } else {
       this.handleWebsocketEvent({ id: this.id, type: 'error' })
     }
